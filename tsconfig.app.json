@@ -7,9 +7,6 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    },
-    "noImplicitAny": false,
-    "allowJs": true,
-    "strict": true
+    }
   }
 }

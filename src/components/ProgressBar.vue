@@ -26,8 +26,7 @@
 
 <script setup lang="ts">
 import { computed, nextTick, ref, type ComputedRef } from 'vue'
-//@ts-ignore
-import { VueResizable } from 'vue-resizable'
+import VueResizable from 'vue-resizable'
 
 const emit = defineEmits<{
   (e: 'update:percentage', percentage: number): void
