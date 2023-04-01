@@ -27,6 +27,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, type ComputedRef } from 'vue'
 import VueResizable from 'vue-resizable'
+import chroma from 'chroma-js'
 
 const emit = defineEmits<{
   (e: 'update:percentage', percentage: number): void
@@ -52,55 +53,13 @@ const props = withDefaults(
     rounded: true
   }
 )
-const colours = [
-  '#29303e',
-  '#2a333f',
-  '#2a3740',
-  '#2b3a41',
-  '#2b3e42',
-  '#2c4143',
-  '#2c4544',
-  '#2d4846',
-  '#2d4c47',
-  '#2e4f48',
-  '#2e5349',
-  '#2f564a',
-  '#2f5a4b',
-  '#305d4c',
-  '#30614d',
-  '#31644e',
-  '#31684f',
-  '#326b50',
-  '#326f51',
-  '#337252',
-  '#337654',
-  '#347955',
-  '#347d56',
-  '#358057',
-  '#358458',
-  '#368759',
-  '#368b5a',
-  '#378e5b',
-  '#37925c',
-  '#38955d',
-  '#38995e',
-  '#399c5f',
-  '#39a060',
-  '#3aa362',
-  '#3aa763',
-  '#3baa64',
-  '#3bae65',
-  '#3cb166',
-  '#3cb567',
-  '#3db868'
-]
 
 const hexColour: ComputedRef<string> = computed(() => {
-  // Map the current percentage to an interger between 0 - 40
-  const mappedValue = Math.round(mapRange(props.percentage, 0, 100, 0, colours.length - 1))
-  return colours[mappedValue]
-})
+  // Generate colours
+  const colourFn = chroma.scale(['#07080a', '#ea5234', '#fbbd23', '#66cc8a']).domain([0, 100])
 
+  return colourFn(props.percentage)
+})
 // Helpers
 //https://webtips.dev/webtips/javascript/how-to-clamp-numbers-in-javascript
 function clamp(num: number, min: number, max: number) {

@@ -1,8 +1,8 @@
 <template>
   <div class="card bg-slate-200" v-if="card">
     <div class="card-body p-2 flex flex-row gap-2">
-      <div class="flex-auto form-control m-2 min-w-[40vw]">
-        <input class="input input-ghost input-md text-xl" :value="card.title" @change="OnInput" />
+      <div class="flex-auto form-control m-2 min-w-[30vw]">
+        <input class="input input-ghost input-md text-2xl" :value="card.title" @change="OnInput" />
       </div>
       <div class="flex-auto min-w-[40vw]">
         <ProgressBar

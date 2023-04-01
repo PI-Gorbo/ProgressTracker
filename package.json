@@ -13,6 +13,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "chroma-js": "^2.4.2",
     "daisyui": "^2.51.5",
     "javascript-color-gradient": "^2.4.4",
     "pinia": "^2.0.32",
