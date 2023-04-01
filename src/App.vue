@@ -5,7 +5,7 @@
         <div class="avatar">
           <img src="/mountain-32.png" />
         </div>
-        <div class="prose pl-2"><h2>Everest</h2></div>
+        <div class="prose pl-2"><h2>Kosciuszko</h2></div>
       </div>
       <div class="navbar-end">
         <div class="btn mx-1" @click="OnAddCard">Add!</div>
