@@ -1,6 +1,11 @@
 <template>
   <div class="w-full h-full">
-    <div class="bg-white w-full h-full rounded-full" ref="parentComp">
+    <div class="bg-white w-full h-full rounded-full relative" ref="parentComp">
+      <div
+        class="absolute text-white mix-blend-difference w-full h-full flex items-center justify-center text-3xl z-50"
+      >
+        {{ props.percentage }}%
+      </div>
       <vue-resizable
         :fitParent="true"
         :active="['r']"
@@ -11,13 +16,16 @@
             onResized(payload)
           }
         "
+        @resize:end="
+        (payload: ResizePayload) => {
+          OnResizeEnd(payload)
+        }"
       >
-        <!--:class="[`w-[${props.percentage}%]`]"-->
-        <div
-          :class="['hasLinearGradient rounded-full flex items-center justify-center h-full']"
-          :style="{ 'background-color': hexColour }"
-        >
-          <span class="text-white"> {{ props.percentage }}% </span>
+        <div class="h-full">
+          <div
+            :class="['hasLinearGradient rounded-full flex items-center justify-center h-full']"
+            :style="{ 'background-color': hexColour }"
+          ></div>
         </div>
       </vue-resizable>
     </div>
@@ -44,6 +52,11 @@ interface ResizePayload {
 
 const parentComp = ref(null as unknown as HTMLDivElement)
 
+const Config = {
+  outputRangeStart: 8,
+  outputRangeEnd: 100
+}
+
 const props = withDefaults(
   defineProps<{
     percentage: number
@@ -56,7 +69,10 @@ const props = withDefaults(
 
 const hexColour: ComputedRef<string> = computed(() => {
   // Generate colours
-  const colourFn = chroma.scale(['#07080a', '#ea5234', '#fbbd23', '#66cc8a']).domain([0, 100])
+  // Black, Red, Yellow, Green
+  const colourFn = chroma
+    .scale(['#07080a', '#ea5234', '#fbbd23', '#66cc8a'])
+    .domain([0, 25, 75, 100])
 
   return colourFn(props.percentage)
 })
@@ -84,7 +100,13 @@ function mapInputPercentageRelativeToProgressBar(inputPercentage: number) {
   // The best way to do this is to map the percentage to a number between 0 and 80 and then add 20
 
   const clampedTo0And100 = clamp(inputPercentage, 0, 100)
-  const mappedPercentage = mapRange(clampedTo0And100, 0, 100, 20, 100)
+  const mappedPercentage = mapRange(
+    clampedTo0And100,
+    0,
+    100,
+    Config.outputRangeStart,
+    Config.outputRangeEnd
+  )
   return mappedPercentage
 }
 
@@ -107,14 +129,38 @@ function GetBarWidthFromPercentage(percentage: number) {
   }
 }
 
+function ProgressParPercentageToInputPercentage(parentWidth: number, itemWidth: number) {
+  // Calculate the percentage
+  const widthOfBar = itemWidth
+  const widthOfParent = parentWidth
+  const percentage = (widthOfBar / widthOfParent) * 100
+  let mappedPercentage = mapRange(
+    percentage,
+    Config.outputRangeStart,
+    Config.outputRangeEnd,
+    0,
+    100
+  )
+  return mappedPercentage
+}
+
 // Events
 function onResized(payload: ResizePayload) {
-  // Calculate the percentage
-  const widthOfBar = payload.width
-  const widthOfParent = parentComp.value.clientWidth
-  const percentage = (widthOfBar / widthOfParent) * 100
-  let mappedPercentage = mapRange(percentage, 20, 100, 0, 100)
+  const mappedPercentage = ProgressParPercentageToInputPercentage(
+    parentComp.value.clientWidth,
+    payload.width
+  )
   emit('update:percentage', mappedPercentage)
+}
+
+function OnResizeEnd(payload: ResizePayload) {
+  const mappedPercentage = ProgressParPercentageToInputPercentage(
+    parentComp.value.clientWidth,
+    payload.width
+  )
+  // wrap the number to the nearest 5
+  const percentageRoundedToNearest5 = Math.round(mappedPercentage / 5) * 5
+  emit('update:percentage', percentageRoundedToNearest5)
 }
 </script>
 <style scoped></style>

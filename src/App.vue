@@ -1,7 +1,12 @@
 <template>
   <header>
     <div class="navbar bg-primary">
-      <div class="navbar-start">Everest</div>
+      <div class="navbar-start">
+        <div class="avatar">
+          <img src="/mountain-32.png" />
+        </div>
+        <div class="prose pl-2"><h2>Everest</h2></div>
+      </div>
       <div class="navbar-end">
         <div class="btn mx-1" @click="OnAddCard">Add!</div>
         <div class="btn btn-warning mx-1" @click="OnClearAllCards">Clear</div>

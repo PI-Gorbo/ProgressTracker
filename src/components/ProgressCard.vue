@@ -11,7 +11,7 @@
           :percentage="card.progress"
           @update:percentage="
             (val) => {
-              cardStore.cards[props.cardIndex].progress = val
+              cardStore.modifyCard(props.cardIndex, { progress: val })
             }
           "
         />
