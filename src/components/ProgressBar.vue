@@ -48,8 +48,9 @@ import {
 import VueResizable from 'vue-resizable'
 import chroma from 'chroma-js'
 import { debounce } from 'lodash'
+import type { Emitter, EventType } from 'mitt'
 
-const emitter = inject('emitter')
+const emitter = inject<Emitter<Record<EventType, unknown>>>('emitter')
 const emit = defineEmits<{
   (e: 'update:percentage', percentage: number): void
 }>()
@@ -162,7 +163,7 @@ function ProgressParPercentageToInputPercentage(parentWidth: number, itemWidth: 
 onMounted(() => {
   console.log('mounting')
   window.addEventListener('resize', OnParentResize)
-  emitter.on('progressBarResize', () => {
+  emitter?.on('progressBarResize', () => {
     OnParentResize()
   })
 })
@@ -170,7 +171,7 @@ onMounted(() => {
 onUnmounted(() => {
   console.log('unmounting')
   window.removeEventListener('resize', OnParentResize)
-  emitter.off('progressBarResize', () => {
+  emitter?.off('progressBarResize', () => {
     OnParentResize()
   })
 })
