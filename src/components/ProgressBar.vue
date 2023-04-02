@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full h-full">
+  <div class="w-full h-12">
     <div class="bg-white w-full h-full rounded-full relative" ref="parentComp">
       <div
         class="absolute text-white mix-blend-difference w-full h-full flex items-center justify-center text-3xl z-50"
@@ -11,6 +11,7 @@
         :active="['r']"
         :width="GetBarWidthFromPercentage(props.percentage)"
         :minWidth="GetBarWidthFromPercentage(0)"
+        :height="48"
         @resize:move="
           (payload: ResizePayload) => {
             onResized(payload)
@@ -20,6 +21,7 @@
         (payload: ResizePayload) => {
           OnResizeEnd(payload)
         }"
+        ref="resizableComp"
       >
         <div class="h-full">
           <div
@@ -33,10 +35,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, type ComputedRef } from 'vue'
+import {
+  computed,
+  inject,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  ref,
+  watch,
+  type ComputedRef
+} from 'vue'
 import VueResizable from 'vue-resizable'
 import chroma from 'chroma-js'
+import { debounce } from 'lodash'
 
+const emitter = inject('emitter')
 const emit = defineEmits<{
   (e: 'update:percentage', percentage: number): void
 }>()
@@ -51,9 +64,10 @@ interface ResizePayload {
 }
 
 const parentComp = ref(null as unknown as HTMLDivElement)
+const resizableComp = ref(null as unknown as VueResizable)
 
 const Config = {
-  outputRangeStart: 8,
+  outputRangeStart: 3,
   outputRangeEnd: 100
 }
 
@@ -144,6 +158,23 @@ function ProgressParPercentageToInputPercentage(parentWidth: number, itemWidth: 
   return mappedPercentage
 }
 
+// Lifecycle (https://stackoverflow.com/questions/49380830/vue-js-how-to-get-window-size-whenever-it-changes)
+onMounted(() => {
+  console.log('mounting')
+  window.addEventListener('resize', OnParentResize)
+  emitter.on('progressBarResize', () => {
+    OnParentResize()
+  })
+})
+
+onUnmounted(() => {
+  console.log('unmounting')
+  window.removeEventListener('resize', OnParentResize)
+  emitter.off('progressBarResize', () => {
+    OnParentResize()
+  })
+})
+
 // Events
 function onResized(payload: ResizePayload) {
   const mappedPercentage = ProgressParPercentageToInputPercentage(
@@ -161,6 +192,16 @@ function OnResizeEnd(payload: ResizePayload) {
   // wrap the number to the nearest 5
   const percentageRoundedToNearest5 = Math.round(mappedPercentage / 5) * 5
   emit('update:percentage', percentageRoundedToNearest5)
+}
+
+function OnParentResize() {
+  if (!resizableComp.value) {
+    return
+  }
+  // recalculate the width and the min-width of the percentage bars.
+  resizableComp.value.w = GetBarWidthFromPercentage(props.percentage)
+  resizableComp.value.minW = GetBarWidthFromPercentage(0)
+  console.log('triggered')
 }
 </script>
 <style scoped></style>
