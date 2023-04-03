@@ -2,6 +2,11 @@ import { defineStore } from 'pinia'
 import { inject, reactive, ref, type ComputedRef, type Ref } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 
+export interface ISerialize {
+  groups: IGroup[]
+  title: string | null
+}
+
 export interface IGroup {
   groupTitle: string
   cards: ICard[]
@@ -16,24 +21,51 @@ export interface ICard {
 export const useCardStore = defineStore('CardStore', () => {
   // State
   const groups: Ref<IGroup[]> = ref([] as IGroup[])
+  const title: Ref<string | null> = ref(null)
+
+  // Serialize and Deserialize State
+  function Serialize(): string {
+    return JSON.stringify({
+      groups: groups.value,
+      title: title.value
+    } as ISerialize)
+  }
+
+  function Deserialize(jsonString: string) {
+    try {
+      const obj = JSON.parse(jsonString)
+      if ('groups' in obj && 'title' in obj) {
+        groups.value = obj.groups
+        title.value = obj.title
+      } else {
+        groups.value = []
+        title.value = null
+      }
+    } catch (e) {
+      reset()
+    }
+  }
 
   // Attempt to read from the browser's internal storage.
-  function init() {
+  function init(): void {
     const cardsInLocalStorage = localStorage.getItem('cardStore')
     if (cardsInLocalStorage == null) {
-      groups.value = []
+      reset()
       return
     }
-    try {
-      groups.value = JSON.parse(cardsInLocalStorage) as IGroup[]
-    } catch (e) {
-      groups.value = []
-    }
+
+    Deserialize(cardsInLocalStorage)
   }
 
   // Save state to the browser's internal storage
   function save() {
-    localStorage.setItem('cardStore', JSON.stringify(groups.value))
+    localStorage.setItem('cardStore', Serialize())
+  }
+
+  function reset() {
+    localStorage.removeItem('cardStore')
+    groups.value = []
+    title.value = null
   }
 
   function addGroup() {
@@ -81,6 +113,7 @@ export const useCardStore = defineStore('CardStore', () => {
   return {
     groups,
     init,
+    reset,
     save,
     addNewGroup: addGroup,
     removeGroup,

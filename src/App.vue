@@ -8,6 +8,13 @@
           </div>
           <div class="prose pl-2"><h2>Kosciuszko</h2></div>
         </div>
+        <div class="navbar-center">
+          <div class="form-control">
+            <input
+              class="input input-ghost bg-primary-focus sm:text-xl md:text-2xl lg:text-4xl text-center w-fit"
+            />
+          </div>
+        </div>
         <div class="navbar-end">
           <button class="btn" @click="OnAddNewGroup">Add New Group</button>
         </div>

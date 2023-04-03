@@ -1,9 +1,7 @@
 <template>
   <div class="w-full h-12">
     <div class="bg-white w-full h-full rounded-full relative" ref="parentComp">
-      <div
-        class="absolute text-white mix-blend-difference w-full h-full flex items-center justify-center text-3xl z-50"
-      >
+      <div class="absolute text-black w-full h-full flex items-center justify-center text-3xl z-50">
         {{ props.percentage }}%
       </div>
       <vue-resizable
@@ -11,6 +9,7 @@
         :active="['r']"
         :width="GetBarWidthFromPercentage(props.percentage)"
         :minWidth="GetBarWidthFromPercentage(0)"
+        :maxWidth="GetBarWidthFromPercentage(100)"
         :height="48"
         @resize:move="
           (payload: ResizePayload) => {
@@ -68,7 +67,7 @@ const parentComp = ref(null as unknown as HTMLDivElement)
 const resizableComp = ref(null as unknown as VueResizable)
 
 const Config = {
-  outputRangeStart: 3,
+  outputRangeStart: 9,
   outputRangeEnd: 100
 }
 
@@ -86,7 +85,7 @@ const hexColour: ComputedRef<string> = computed(() => {
   // Generate colours
   // Black, Red, Yellow, Green
   const colourFn = chroma
-    .scale(['#07080a', '#ea5234', '#fbbd23', '#66cc8a'])
+    .scale(['#07080a', '#ea5234', '#fbbd23', '#5c7f67'])
     .domain([0, 25, 75, 100])
 
   return colourFn(props.percentage)
@@ -199,10 +198,13 @@ function OnParentResize() {
   if (!resizableComp.value) {
     return
   }
-  // recalculate the width and the min-width of the percentage bars.
-  resizableComp.value.w = GetBarWidthFromPercentage(props.percentage)
-  resizableComp.value.minW = GetBarWidthFromPercentage(0)
-  console.log('triggered')
+  nextTick(() => {
+    // recalculate the width and the min-width of the percentage bars.
+    resizableComp.value.w = GetBarWidthFromPercentage(props.percentage)
+    resizableComp.value.minW = GetBarWidthFromPercentage(0)
+    resizableComp.value.maxW = GetBarWidthFromPercentage(100)
+    console.log('triggered')
+  })
 }
 </script>
 <style scoped></style>

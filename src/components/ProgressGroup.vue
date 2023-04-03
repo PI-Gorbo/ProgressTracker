@@ -2,19 +2,23 @@
   <div class="p-2">
     <div class="flex flex-row gap-2">
       <div class="flex-none">
-        <button class="btn btn-primary" @click="OnAddCard">Add Card</button>
+        <button class="btn border-base-200 bg-base-200 hover:btn-primary" @click="OnAddCard">
+          Add Card
+        </button>
       </div>
       <div class="form-control flex-1">
         <input
           type="text "
           placeholder="Enter group name..."
           :value="group.groupTitle"
-          class="input input-md text-2xl text-center"
+          class="input input-md lg:text-2xl text-center"
           @change="OnSetGroupName"
         />
       </div>
       <div class="flex-none flex justify-end">
-        <button class="btn btn-error" @click="OnRemoveGroup">Delete Group</button>
+        <button class="btn border-base-200 bg-base-200 hover:btn-error" @click="OnRemoveGroup">
+          Delete Group
+        </button>
       </div>
     </div>
     <draggableComponent v-model="group.cards" group="people" item-key="id" handle=".handle">

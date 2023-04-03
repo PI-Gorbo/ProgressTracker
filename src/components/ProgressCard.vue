@@ -1,18 +1,23 @@
 <template>
-  <div class="card bg-slate-200" v-if="card">
-    <div class="card-body p-2">
-      <div class="form-control m-2 flex flex-row gap-2">
-        <input class="input input-bordered text-xl flex-1" :value="card.title" @change="OnInput" />
-        <div class="flex-none flex justify-end">
-          <button class="btn btn-error flex-none" @click="emit('DeleteCard')">X</button>
+  <div class="card bg-base-300" v-if="card">
+    <div class="card-body p-2 flex-row">
+      <div class="flex flex-col items-center p-0">
+        <div class="handle cursor-grab">
+          <font-awesome-icon icon="fa-solid fa-bars" />
         </div>
-        <div class="flex items-center">
-          <div class="handle cursor-grab">
-            <FontAwesomeIcon icon="fa-solid fa-grip-lines" />
-          </div>
+        <div class="flex-none flex justify-end">
+          <button
+            class="btn border-base-200 bg-base-200 hover:btn-error flex-none btn-sm"
+            @click="emit('DeleteCard')"
+          >
+            X
+          </button>
         </div>
       </div>
-      <div class="flex items-center">
+      <div class="form-control flex flex-row gap-2 flex-1 items-center">
+        <input class="input input-bordered text-2xl" :value="card.title" @change="OnInput" />
+      </div>
+      <div class="flex items-center flex-1 w-full">
         <ProgressBar
           colour="black"
           :rounded="true"
