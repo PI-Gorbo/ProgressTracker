@@ -3,123 +3,127 @@ import { inject, reactive, ref, type ComputedRef, type Ref } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 
 export interface ISerialize {
-  groups: IGroup[]
-  title: string | null
+    groups: IGroup[]
+    title: string | null
 }
 
 export interface IGroup {
-  groupTitle: string
-  cards: ICard[]
+    groupTitle: string
+    cards: ICard[]
 }
 
 export interface ICard {
-  id: string
-  title: string | null
-  progress: number
+    id: string
+    title: string | null
+    progress: number
 }
 
 export const useCardStore = defineStore('CardStore', () => {
-  // State
-  const groups: Ref<IGroup[]> = ref([] as IGroup[])
-  const title: Ref<string | null> = ref(null)
+    // State
+    const groups: Ref<IGroup[]> = ref([] as IGroup[])
+    const title: Ref<string | null> = ref(null)
 
-  // Serialize and Deserialize State
-  function Serialize(): string {
-    return JSON.stringify({
-      groups: groups.value,
-      title: title.value
-    } as ISerialize)
-  }
+    // Serialize and Deserialize State
+    function Serialize(): string {
+        return JSON.stringify({
+            groups: groups.value,
+            title: title.value
+        } as ISerialize)
+    }
 
-  function Deserialize(jsonString: string) {
-    try {
-      const obj = JSON.parse(jsonString)
-      if ('groups' in obj && 'title' in obj) {
-        groups.value = obj.groups
-        title.value = obj.title
-      } else {
+    function Deserialize(jsonString: string) {
+        try {
+            const obj = JSON.parse(jsonString)
+            if ('groups' in obj && 'title' in obj) {
+                groups.value = obj.groups
+                title.value = obj.title
+            } else {
+                groups.value = []
+                title.value = null
+            }
+        } catch (e) {
+            reset()
+        }
+    }
+
+    // Attempt to read from the browser's internal storage.
+    function init(): void {
+        const cardsInLocalStorage = localStorage.getItem('cardStore')
+        if (cardsInLocalStorage == null) {
+            reset()
+            return
+        }
+
+        Deserialize(cardsInLocalStorage)
+    }
+
+    // Save state to the browser's internal storage
+    function save() {
+        localStorage.setItem('cardStore', Serialize())
+    }
+
+    function reset() {
+        localStorage.removeItem('cardStore')
         groups.value = []
         title.value = null
-      }
-    } catch (e) {
-      reset()
-    }
-  }
-
-  // Attempt to read from the browser's internal storage.
-  function init(): void {
-    const cardsInLocalStorage = localStorage.getItem('cardStore')
-    if (cardsInLocalStorage == null) {
-      reset()
-      return
     }
 
-    Deserialize(cardsInLocalStorage)
-  }
+    function addGroup() {
+        // Generate a new group
+        let groupName = 'New Group'
+        let counter = 1
+        while (groups.value.find((x) => x.groupTitle === groupName) != undefined) {
+            groupName = 'New Group ' + counter
+            counter++
+        }
 
-  // Save state to the browser's internal storage
-  function save() {
-    localStorage.setItem('cardStore', Serialize())
-  }
-
-  function reset() {
-    localStorage.removeItem('cardStore')
-    groups.value = []
-    title.value = null
-  }
-
-  function addGroup() {
-    // Generate a new group
-    let groupName = 'New Group'
-    let counter = 1
-    while (groups.value.find((x) => x.groupTitle === groupName) != undefined) {
-      groupName = 'New Group ' + counter
-      counter++
+        groups.value.push({
+            groupTitle: groupName,
+            cards: []
+        })
+        save()
     }
 
-    groups.value.push({
-      groupTitle: groupName,
-      cards: []
-    })
-    save()
-  }
+    function removeGroup(groupIndex: number) {
+        groups.value.splice(groupIndex, 1)
+        save()
+    }
 
-  function removeGroup(groupIndex: number) {
-    groups.value.splice(groupIndex, 1)
-    save()
-  }
+    function addCard(groupIndex: number, card: Omit<ICard, 'id'> = { title: '', progress: 0 }) {
+        const cardWithId = { id: uuidv4(), ...card }
+        groups.value[groupIndex].cards.push(cardWithId)
+        save()
+    }
 
-  function addCard(groupIndex: number, card: Omit<ICard, 'id'> = { title: '', progress: 0 }) {
-    const cardWithId = { id: uuidv4(), ...card }
-    groups.value[groupIndex].cards.push(cardWithId)
-    save()
-  }
+    function removeCard(groupIndex: number, index: number) {
+        groups.value[groupIndex].cards.splice(index, 1)
+        save()
+    }
 
-  function removeCard(groupIndex: number, index: number) {
-    groups.value[groupIndex].cards.splice(index, 1)
-    save()
-  }
+    function modifyCard(groupIndex: number, index: number, card: Partial<Omit<ICard, 'id'>>) {
+        groups.value[groupIndex].cards[index] = {
+            ...groups.value[groupIndex].cards[index],
+            ...card
+        }
+        save()
+    }
 
-  function modifyCard(groupIndex: number, index: number, card: Partial<Omit<ICard, 'id'>>) {
-    groups.value[groupIndex].cards[index] = { ...groups.value[groupIndex].cards[index], ...card }
-    save()
-  }
+    function clearAllCards(groupIndex: number) {
+        groups.value[groupIndex].cards = []
+        save()
+    }
 
-  function clearAllCards(groupIndex: number) {
-    groups.value[groupIndex].cards = []
-    save()
-  }
-
-  return {
-    groups,
-    init,
-    reset,
-    save,
-    addNewGroup: addGroup,
-    removeGroup,
-    addCard,
-    modifyCard,
-    removeCard,
-    clearAllCards
-  }
+    return {
+        groups,
+        title,
+        init,
+        reset,
+        save,
+        addNewGroup: addGroup,
+        removeGroup,
+        addCard,
+        modifyCard,
+        removeCard,
+        clearAllCards
+    }
 })
