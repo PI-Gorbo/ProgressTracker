@@ -15,7 +15,7 @@
         </div>
       </div>
       <div class="form-control flex flex-row gap-2 flex-1 items-center">
-        <input class="input input-bordered text-2xl" :value="card.title" @change="OnInput" />
+        <input class="input input-bordered text-2xl w-full" :value="card.title" @change="OnInput" />
       </div>
       <div class="flex items-center flex-1 w-full">
         <ProgressBar
