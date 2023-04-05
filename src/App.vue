@@ -33,7 +33,7 @@ import ProgressCard from './components/ProgressCard.vue'
 import ProgressSection from './components/ProgressSection.vue'
 import { useCardStore, type ICard } from './stores/cardStore'
 import draggable from 'vuedraggable'
-import mitt, { type Emitter, type EventType } from 'mitt'
+import type { Emitter, EventType } from 'mitt'
 import _ from 'lodash'
 
 // Store
