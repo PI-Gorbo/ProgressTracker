@@ -20,6 +20,7 @@
     "@fortawesome/vue-fontawesome": "^3.0.3",
     "@types/lodash": "^4.14.192",
     "chroma-js": "^2.4.2",
+    "crypto-js": "^4.1.1",
     "daisyui": "^2.51.5",
     "javascript-color-gradient": "^2.4.4",
     "lodash": "^4.17.21",

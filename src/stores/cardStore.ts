@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import { inject, reactive, ref, type ComputedRef, type Ref } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
+import AES from 'crypto-js/aes'
+import ENC from 'crypto-js/enc-utf8'
 
 export interface ISerialize {
     groups: IGroup[]
@@ -53,7 +55,6 @@ export const useCardStore = defineStore('CardStore', () => {
             reset()
             return
         }
-
         Deserialize(cardsInLocalStorage)
     }
 
@@ -113,6 +114,32 @@ export const useCardStore = defineStore('CardStore', () => {
         save()
     }
 
+    function getStateHash(): string {
+        const encryptedState = AES.encrypt(Serialize(), 'secretKey').toString()
+        return encryptedState
+    }
+
+    function validateHash(hashValue: string): boolean {
+        const bytes = AES.decrypt(hashValue, 'secretKey')
+        const decryptedValue = bytes.toString(ENC)
+        // Try parse with json
+        try {
+            JSON.parse(decryptedValue)
+            return true
+        } catch (error) {
+            return false
+        }
+    }
+
+    function setStateFromHash(value: string): void {
+        const bytes = AES.decrypt(value, 'secretKey')
+        const decryptedValue = bytes.toString(ENC)
+        if (!validateHash(value)) {
+            return
+        }
+        Deserialize(decryptedValue)
+    }
+
     return {
         groups,
         title,
@@ -124,6 +151,9 @@ export const useCardStore = defineStore('CardStore', () => {
         addCard,
         modifyCard,
         removeCard,
-        clearAllCards
+        clearAllCards,
+        getStateHash,
+        setStateFromHash,
+        validateHash
     }
 })
